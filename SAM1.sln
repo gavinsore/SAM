@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "svcSAMCollector", "svcSAMCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{DF9ADAD9-2977-470F-9773-D212785FC9EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegisterSAM", "RegisterSAM\RegisterSAM.csproj", "{08DDB40E-3BA6-4CED-BEBB-CDF94F1340CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{DF9ADAD9-2977-470F-9773-D212785FC9EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF9ADAD9-2977-470F-9773-D212785FC9EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF9ADAD9-2977-470F-9773-D212785FC9EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08DDB40E-3BA6-4CED-BEBB-CDF94F1340CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08DDB40E-3BA6-4CED-BEBB-CDF94F1340CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08DDB40E-3BA6-4CED-BEBB-CDF94F1340CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08DDB40E-3BA6-4CED-BEBB-CDF94F1340CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
