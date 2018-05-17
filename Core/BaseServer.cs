@@ -9,8 +9,8 @@ namespace Core
     public class BaseDisks
     {
         public string DiskLetter { get; set; }
-        public float TotalDiskSize { get; set; }
-        public float FreeDiskSpace { get; set; }
+        public long TotalDiskSize { get; set; }
+        public long FreeDiskSpace { get; set; }
     }
 
     public class BaseServer
@@ -23,5 +23,11 @@ namespace Core
         public double MemoryInUse { get; set; }
         public double MemoryAvailable { get; set; }
         public string OS { get; set; }
+
+        public BaseServer()
+        {
+            Disks = new List<BaseDisks>();
+
+        }
     }
 }

@@ -16,12 +16,12 @@ namespace Core
 
         public bool LoadFromXML()
         {
-            if (File.Exists("clientsettings.xml"))
+            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "\\clientsettings.xml"))
             {
-
+                
                 try
                 {
-                    XDocument xml = XDocument.Load("clientsettings.xml");
+                    XDocument xml = XDocument.Load(AppDomain.CurrentDomain.BaseDirectory + "\\clientsettings.xml");
 
                     foreach (var node in xml.DescendantNodes().OfType<XText>())
                     {
@@ -35,7 +35,7 @@ namespace Core
 
                     return true;
                 }
-                catch { return false; }
+                catch { return false; }  
             }
             else
                 return false;

@@ -25,18 +25,45 @@ namespace webappSAMServer.Repositories
         public void PostStats(BaseServer server)
         {
             InitiateConnection();
-            using (qry = new SqlCommand("InsertStats", connection))
+
+            try
             {
-                qry.CommandType = CommandType.StoredProcedure;
-                qry.Parameters.AddWithValue("@ServerGUID", server.ServerID);
-                qry.Parameters.AddWithValue("@CPUUsage", server.ProcessorTotal);
-                qry.Parameters.AddWithValue("@MemoryUsage", server.MemoryInUse);
-                qry.Parameters.AddWithValue("@MemoryAvailable", server.MemoryAvailable);
                 connection.Open();
-                qry.ExecuteNonQuery();
+
+                using (qry = new SqlCommand("InsertStats", connection))
+                {
+                    qry.CommandType = CommandType.StoredProcedure;
+                    qry.Parameters.AddWithValue("@ServerGUID", server.ServerID);
+                    qry.Parameters.AddWithValue("@CPUUsage", server.ProcessorTotal);
+                    qry.Parameters.AddWithValue("@MemoryUsage", server.MemoryInUse);
+                    qry.Parameters.AddWithValue("@MemoryAvailable", server.MemoryAvailable);
+                
+                    qry.ExecuteNonQuery();
+                }
+
+                using (qry = new SqlCommand("InsertDiskStats", connection))
+                {
+                    qry.CommandType = CommandType.StoredProcedure;
+                    qry.Parameters.AddWithValue("@ServerGUID", server.ServerID);
+                    qry.Parameters.Add("@DriveLetter", SqlDbType.VarChar);
+                    qry.Parameters.Add("@Totalsize", SqlDbType.Float);
+                    qry.Parameters.Add("@FreeSpace", SqlDbType.Float);
+
+                    foreach (BaseDisks disk in server.Disks)
+                    {
+                        qry.Parameters["@DriveLetter"].Value = disk.DiskLetter;
+                        qry.Parameters["@Totalsize"].Value = disk.TotalDiskSize;
+                        qry.Parameters["@FreeSpace"].Value = disk.FreeDiskSpace;
+
+                        qry.ExecuteNonQuery();
+                    }
+                }
+            }
+            finally
+            {
                 connection.Close();
             }
-           
+
         }   
     }
 }

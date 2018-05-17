@@ -40,7 +40,7 @@ namespace svcSAMCollector
             cons.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));*/
 
             svr = new BaseServer();
-            svr.ServerID = Guid.NewGuid();
+            //svr.ServerID = Guid.NewGuid();
             svr.ServerName = System.Environment.MachineName;
             svr.OS = System.Environment.OSVersion.ToString();
 
@@ -49,12 +49,36 @@ namespace svcSAMCollector
 
         protected override void OnStart(string[] args)
         {
+            ClientSettings cs = new ClientSettings();
             timer1 = new Timer(10000);
-            this.timer1.Elapsed += new System.Timers.ElapsedEventHandler(this.timer1_Tick);
-            timer1.Enabled = true;
+            try
+            {
+                if (cs.LoadFromXML())
+                {
+                    svr.ServerID = cs.ServerGuid;
+                    //tbServerGuid.Text = ServerGuid.ToString();
 
-            Library.WriteErrorLog("Collecting server statistics service");
+                    //tbCompanyName.Text = cs.CompanyName;
+                    //tbSAMServerURL.Text = cs.SAMServerURL;
 
+
+                    this.timer1.Elapsed += new System.Timers.ElapsedEventHandler(this.timer1_Tick);
+                    timer1.Enabled = true;
+
+                    Library.WriteErrorLog("Collecting server statistics service");
+
+                }
+                else
+                {
+                    Library.WriteErrorLog(AppDomain.CurrentDomain.BaseDirectory);
+                    Library.WriteErrorLog("Server has not been registered.  Stopping Service");
+                    this.Stop();
+                }
+            }
+            catch (Exception ex)
+            {
+                Library.WriteErrorLog(ex);
+            }
         }
 
         protected override void OnStop()

@@ -67,7 +67,19 @@ namespace SAM1
                     if (drive.IsReady && drive.DriveType == DriveType.Fixed)
                     {
                         Console.WriteLine(drive.Name + "Total Size: " + ((drive.TotalSize / 1024) / 1024) / 1024 + "Gb | Available Space: " + ((drive.AvailableFreeSpace / 1024) / 1024) / 1024 + "Gb");
+                        BaseDisks disk = null;
+                        if (svr.Disks != null)
+                            disk = svr.Disks.Find(x => x.DiskLetter == drive.Name);
 
+                        if (disk == null)
+                        {
+                            disk = new BaseDisks();
+                            svr.Disks.Add(disk);
+                        }
+
+                        disk.DiskLetter = drive.Name;
+                        disk.FreeDiskSpace = ((drive.AvailableFreeSpace / 1024) / 1024);
+                        disk.TotalDiskSize = ((drive.TotalSize / 1024) / 1024);
                     }
                 }
 
