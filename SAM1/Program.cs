@@ -7,12 +7,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using Core;
+using System.Net.Http.Formatting;
 
 namespace SAM1
 {
     class Program
     {
-        static async Task MyAPIPost(HttpClient cons, BaseServer server)
+        /*static async Task MyAPIPost(HttpClient cons, BaseServer server)
         {
             try
             {
@@ -24,7 +25,7 @@ namespace SAM1
                 Console.WriteLine(ex.Message);
 
             }
-        }
+        }*/
 
         static void Main(string[] args)
         {
@@ -33,18 +34,18 @@ namespace SAM1
             cpuCounter.CounterName = "% Processor Time";
             cpuCounter.InstanceName = "_Total";
 
-            dynamic firstValue;
+            //dynamic firstValue;
 
             PerformanceCounter ramCounter = new PerformanceCounter();
             ramCounter.CategoryName = "Memory";
 
             DriveInfo[] drives;
 
-            HttpClient cons = new HttpClient();
-            cons.BaseAddress = new Uri("http://localhost:62104/");
-            cons.Timeout = TimeSpan.FromMilliseconds(500);
-            cons.DefaultRequestHeaders.Accept.Clear();
-            cons.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            //HttpClient cons = new HttpClient();
+            //cons.BaseAddress = new Uri("http://localhost:62104/");
+            //cons.Timeout = TimeSpan.FromMilliseconds(500);
+            //cons.DefaultRequestHeaders.Accept.Clear();
+            //cons.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
             Core.BaseServer svr = new BaseServer();
             svr.ServerID = Guid.NewGuid();
@@ -53,22 +54,22 @@ namespace SAM1
 
             for (int i = 0; i < 30; i++)
             {
-
-                firstValue = cpuCounter.NextValue();
-                System.Threading.Thread.Sleep(500);
+                svr.GetStats(cpuCounter, ramCounter);
+                //firstValue = cpuCounter.NextValue();
+                //System.Threading.Thread.Sleep(500);
                 // now matches task manager reading
-                svr.ProcessorTotal = Math.Round(cpuCounter.NextValue(), 1);
+                //svr.ProcessorTotal = Math.Round(cpuCounter.NextValue(), 1);
                 Console.WriteLine("CPU Usage: " + svr.ProcessorTotal.ToString() + "%");
 
-                ramCounter.CounterName = "% Committed Bytes In Use";
-                svr.MemoryInUse = Math.Round(ramCounter.NextValue());
+                //ramCounter.CounterName = "% Committed Bytes In Use";
+                //svr.MemoryInUse = Math.Round(ramCounter.NextValue());
                 Console.WriteLine("Memory in Use: " + svr.MemoryInUse.ToString() + "%");
 
-                ramCounter.CounterName = "Available MBytes";
-                svr.MemoryAvailable = Math.Round(ramCounter.NextValue() / 1024, 1);
+                //ramCounter.CounterName = "Available MBytes";
+                //svr.MemoryAvailable = Math.Round(ramCounter.NextValue() / 1024, 1);
                 Console.WriteLine("Memory Available: " + svr.MemoryAvailable.ToString() + "Gb");
 
-                svr.GetTotalMemory();
+                //svr.GetTotalMemory();
 
                 drives = DriveInfo.GetDrives();
                 foreach (DriveInfo drive in drives)
@@ -95,7 +96,7 @@ namespace SAM1
                     }
                 }
 
-                MyAPIPost(cons, svr).Wait();
+                Core.ApiHelper.MyAPIPost(svr, ApiHelper.PostStatsURL).Wait();
                 System.Threading.Thread.Sleep(1000);
             }
             

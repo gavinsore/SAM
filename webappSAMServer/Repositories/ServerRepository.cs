@@ -20,6 +20,7 @@ namespace webappSAMServer.Repositories
         {   
            string constr = ConfigurationManager.ConnectionStrings["dbServer"].ToString();   
            connection = new SqlConnection(constr);     
+           //connection.
         }
 
         public void PostDiskStats(BaseServer server)

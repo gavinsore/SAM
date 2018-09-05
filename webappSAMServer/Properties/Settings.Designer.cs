@@ -12,7 +12,7 @@ namespace webappSAMServer.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.7.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -26,7 +26,8 @@ namespace webappSAMServer.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=vm-sql2012;Initial Catalog=ServerMonitor;Integrated Security=True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=servmon.database.windows.net;Initial Catalog=servermonitor_dev;Persis" +
+            "t Security Info=True;User ID=servmon_user;Password=£oR9GQD1wU")]
         public string dbServer {
             get {
                 return ((string)(this["dbServer"]));

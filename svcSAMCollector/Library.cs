@@ -14,7 +14,7 @@ namespace svcSAMCollector
 {
     public static class Library
     {
-        const string PostStatsURL = "api/Server/PostStats";
+        /*const string PostStatsURL = "api/Server/PostStats";
         const string PostDriveStatsURL = "api/Server/PostDriveStats";
 
         static async Task MyAPIPost(HttpClient cons, BaseServer server, string URI)
@@ -30,7 +30,7 @@ namespace svcSAMCollector
                 WriteErrorLog(e);
             }
 
-        }
+        }*/
 
         /*public static void GetTotalMemory(BaseServer svr)
         {
@@ -47,31 +47,34 @@ namespace svcSAMCollector
 
         public static void GetStats(BaseServer svr, PerformanceCounter cpuCounter, PerformanceCounter ramCounter)
         {
-            dynamic firstValue = cpuCounter.NextValue();
-            System.Threading.Thread.Sleep(500);
-            // now matches task manager reading
-            svr.ProcessorTotal = Math.Round(cpuCounter.NextValue(), 1);
+            /* dynamic firstValue = cpuCounter.NextValue();
+             System.Threading.Thread.Sleep(500);
+             // now matches task manager reading
+             svr.ProcessorTotal = Math.Round(cpuCounter.NextValue(), 1);
 
-            ramCounter.CounterName = "Available MBytes";
-            svr.MemoryAvailable = Math.Round(ramCounter.NextValue(), 1);
+             ramCounter.CounterName = "Available MBytes";
+             svr.MemoryAvailable = Math.Round(ramCounter.NextValue(), 1);
 
-            //ramCounter.CounterName = "% Committed Bytes In Use";
-            if (svr.TotalMemory == 0)
-                svr.GetTotalMemory();
+             //ramCounter.CounterName = "% Committed Bytes In Use";
+             if (svr.TotalMemory == 0)
+                 svr.GetTotalMemory();
 
-            if (svr.TotalMemory > 0)
-                svr.MemoryInUse = ((svr.TotalMemory - svr.MemoryAvailable) / svr.TotalMemory) * 100;
+             if (svr.TotalMemory > 0)
+                 svr.MemoryInUse = ((svr.TotalMemory - svr.MemoryAvailable) / svr.TotalMemory) * 100;*/
 
-            using (HttpClient cons = new HttpClient())
+            svr.GetStats(cpuCounter, ramCounter);
+            Core.ApiHelper.MyAPIPost(svr, ApiHelper.PostStatsURL).Wait();
+
+            /*using (HttpClient cons = new HttpClient())
             {
                 cons.BaseAddress = new Uri("http://localhost:62104/");
-                cons.DefaultRequestHeaders.Accept.Clear();
-                cons.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                //cons.DefaultRequestHeaders.Accept.Clear();
+                //cons.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
                 //ConfigHttpClient(cons);
 
-                MyAPIPost(cons, svr, PostStatsURL).Wait();
-            }
+                
+            }*/
         }
 
         private static void ConfigHttpClient(HttpClient p_httpclient)
@@ -101,7 +104,7 @@ namespace svcSAMCollector
             {
                 ConfigHttpClient(cons);
 
-                MyAPIPost(cons, svr, PostDriveStatsURL).Wait();
+                //MyAPIPost(cons, svr, PostDriveStatsURL).Wait();
             }
 
         }
