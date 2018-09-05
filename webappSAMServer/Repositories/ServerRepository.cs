@@ -22,24 +22,13 @@ namespace webappSAMServer.Repositories
            connection = new SqlConnection(constr);     
         }
 
-        public void PostStats(BaseServer server)
+        public void PostDiskStats(BaseServer server)
         {
             InitiateConnection();
 
             try
             {
                 connection.Open();
-
-                using (qry = new SqlCommand("InsertStats", connection))
-                {
-                    qry.CommandType = CommandType.StoredProcedure;
-                    qry.Parameters.AddWithValue("@ServerGUID", server.ServerID);
-                    qry.Parameters.AddWithValue("@CPUUsage", server.ProcessorTotal);
-                    qry.Parameters.AddWithValue("@MemoryUsage", server.MemoryInUse);
-                    qry.Parameters.AddWithValue("@MemoryAvailable", server.MemoryAvailable);
-                
-                    qry.ExecuteNonQuery();
-                }
 
                 using (qry = new SqlCommand("InsertDiskStats", connection))
                 {
@@ -57,6 +46,33 @@ namespace webappSAMServer.Repositories
 
                         qry.ExecuteNonQuery();
                     }
+                }
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+
+        }
+
+        public void PostStats(BaseServer server)
+        {
+            InitiateConnection();
+
+            try
+            {
+                connection.Open();
+
+                using (qry = new SqlCommand("InsertStats", connection))
+                {
+                    qry.CommandType = CommandType.StoredProcedure;
+                    qry.Parameters.AddWithValue("@ServerGUID", server.ServerID);
+                    qry.Parameters.AddWithValue("@CPUUsage", server.ProcessorTotal);
+                    qry.Parameters.AddWithValue("@MemoryUsage", server.MemoryInUse);
+                    qry.Parameters.AddWithValue("@MemoryAvailable", server.MemoryAvailable);
+                
+                    qry.ExecuteNonQuery();
                 }
             }
             finally

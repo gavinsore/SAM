@@ -14,7 +14,16 @@ namespace SAM1
     {
         static async Task MyAPIPost(HttpClient cons, BaseServer server)
         {
-            await cons.PostAsJsonAsync("api/Server/PostStats", server);
+            try
+            {
+                HttpResponseMessage resp = await cons.PostAsJsonAsync("http://localhost:62104/api/Server/PostStats", server);
+                Console.WriteLine(resp.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+
+            }
         }
 
         static void Main(string[] args)
@@ -33,6 +42,7 @@ namespace SAM1
 
             HttpClient cons = new HttpClient();
             cons.BaseAddress = new Uri("http://localhost:62104/");
+            cons.Timeout = TimeSpan.FromMilliseconds(500);
             cons.DefaultRequestHeaders.Accept.Clear();
             cons.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -57,6 +67,8 @@ namespace SAM1
                 ramCounter.CounterName = "Available MBytes";
                 svr.MemoryAvailable = Math.Round(ramCounter.NextValue() / 1024, 1);
                 Console.WriteLine("Memory Available: " + svr.MemoryAvailable.ToString() + "Gb");
+
+                svr.GetTotalMemory();
 
                 drives = DriveInfo.GetDrives();
                 foreach (DriveInfo drive in drives)

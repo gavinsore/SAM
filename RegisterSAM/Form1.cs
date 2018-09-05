@@ -38,7 +38,13 @@ namespace RegisterSAM
 
                 tbCompanyName.Text = cs.CompanyName;
                 tbSAMServerURL.Text = cs.SAMServerURL;
-
+                tbStatsSeconds.Text = cs.StatsTick.ToString();
+                tbDiskStatsSeconds.Text = cs.DiskStatsTick.ToString();
+            }
+            else
+            {
+                tbStatsSeconds.Text = "1";
+                tbDiskStatsSeconds.Text = "60";
             }
 
         }
@@ -47,14 +53,17 @@ namespace RegisterSAM
         {
             ClientSettings cs = new ClientSettings();
 
-            if (!cs.SaveToXML(ServerGuid, tbCompanyName.Text, tbSAMServerURL.Text))
+            if (!cs.SaveToXML(ServerGuid, tbCompanyName.Text, tbSAMServerURL.Text, int.Parse(tbStatsSeconds.Text), int.Parse(tbDiskStatsSeconds.Text)))
             {
-
                 MessageBox.Show("Issue Saving Settings");
                 return false;
             }
             else
+            {
+                MessageBox.Show("Save Successful");
                 return true;
+            }
+                
 
 
         }

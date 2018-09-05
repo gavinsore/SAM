@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Management;
 
 namespace Core
 {
@@ -22,11 +23,23 @@ namespace Core
         public List<BaseDisks> Disks { get; set; }
         public double MemoryInUse { get; set; }
         public double MemoryAvailable { get; set; }
+        public double TotalMemory { get; private set; }
         public string OS { get; set; }
 
         public BaseServer()
         {
             Disks = new List<BaseDisks>();
+        }
+
+        public void GetTotalMemory()
+        {
+            string Query = "SELECT * FROM Win32_ComputerSystem";
+
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(Query);
+            foreach (ManagementObject moMem in searcher.Get())
+            {
+                this.TotalMemory = Convert.ToDouble(moMem.Properties["TotalPhysicalMemory"].Value) / 1024 / 1024;  //from KB to MB
+            }
 
         }
     }

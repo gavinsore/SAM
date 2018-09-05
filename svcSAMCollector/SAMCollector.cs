@@ -18,10 +18,10 @@ namespace svcSAMCollector
     {
         private PerformanceCounter cpuCounter;
         private PerformanceCounter ramCounter;
-        private DriveInfo[] drives;
        // private HttpClient cons;
         private BaseServer svr;
-        private Timer timer1; 
+        private Timer timer1;
+        private Timer timerDisk;
 
         public SAMCollector()
         {
@@ -50,7 +50,8 @@ namespace svcSAMCollector
         protected override void OnStart(string[] args)
         {
             ClientSettings cs = new ClientSettings();
-            timer1 = new Timer(10000);
+            timer1 = new Timer();
+            timerDisk = new Timer();
             try
             {
                 if (cs.LoadFromXML())
@@ -61,11 +62,16 @@ namespace svcSAMCollector
                     //tbCompanyName.Text = cs.CompanyName;
                     //tbSAMServerURL.Text = cs.SAMServerURL;
 
-
+                    timer1.Interval = cs.StatsTick * 1000;
+                    timerDisk.Interval = cs.DiskStatsTick * 1000;
                     this.timer1.Elapsed += new System.Timers.ElapsedEventHandler(this.timer1_Tick);
+                    this.timerDisk.Elapsed += new System.Timers.ElapsedEventHandler(this.timerDisk_Tick);
                     timer1.Enabled = true;
+                    timerDisk.Enabled = true;
 
                     Library.WriteErrorLog("Collecting server statistics service");
+                    Library.WriteErrorLog("Stats Tick: " + timer1.Interval.ToString());
+                    Library.WriteErrorLog("Disk Stats Tick: " + timerDisk.Interval.ToString());
 
                 }
                 else
@@ -84,6 +90,7 @@ namespace svcSAMCollector
         protected override void OnStop()
         {
             timer1.Stop();
+            timerDisk.Stop();
             cpuCounter.Dispose();
             ramCounter.Dispose();
            // cons.Dispose();
@@ -93,6 +100,7 @@ namespace svcSAMCollector
         protected override void OnPause()
         {
             timer1.Stop();
+            timerDisk.Stop();
             Library.WriteErrorLog("Pausing server statistics service");
             base.OnPause();
 
@@ -101,14 +109,20 @@ namespace svcSAMCollector
         protected override void OnContinue()
         {
             timer1.Start();
+            timerDisk.Start();
             Library.WriteErrorLog("Resuming server statistics service");
             base.OnContinue();
         }
 
         private void timer1_Tick(Object sender, ElapsedEventArgs e)
         {
-            Library.GetStats(svr, cpuCounter, ramCounter, drives);
+            Library.GetStats(svr, cpuCounter, ramCounter);
 
+        }
+
+        private void timerDisk_Tick(Object sender, ElapsedEventArgs e)
+        {
+            Library.GetDiskStats(svr);
         }
     }
 }

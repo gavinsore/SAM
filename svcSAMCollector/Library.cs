@@ -9,40 +9,82 @@ using System.Threading.Tasks;
 using Core;
 using System.Diagnostics;
 
+
 namespace svcSAMCollector
 {
     public static class Library
-    { 
-        static async Task MyAPIPost(HttpClient cons, BaseServer server)
+    {
+        const string PostStatsURL = "api/Server/PostStats";
+        const string PostDriveStatsURL = "api/Server/PostDriveStats";
+
+        static async Task MyAPIPost(HttpClient cons, BaseServer server, string URI)
         {
-            WriteErrorLog("Posting stats to: " + cons.BaseAddress);
-            WriteErrorLog("CPU: " + server.ProcessorTotal.ToString());
+            WriteErrorLog("Posting stats to: " + cons.BaseAddress + URI);
             try
             {
-                HttpResponseMessage msg = await cons.PostAsJsonAsync("api/Server/PostStats", server);
-                WriteErrorLog("Posted stats");
+                HttpResponseMessage msg = await cons.PostAsJsonAsync(URI, server);
+                WriteErrorLog("Posted stats: " + msg.StatusCode);
             }
             catch (Exception e)
             {
                 WriteErrorLog(e);
             }
-            
+
         }
 
-        public static void GetStats(BaseServer svr, PerformanceCounter cpuCounter, PerformanceCounter ramCounter, DriveInfo[] drives)
+        /*public static void GetTotalMemory(BaseServer svr)
+        {
+            string Query = "SELECT * FROM Win32_LogicalMemoryConfiguration";
+            double SizeinMB = 0;
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(Query);
+            foreach (ManagementObject moMem in searcher.Get())
+            {
+                SizeinMB = Convert.ToDouble(moMem.Properties["TotalPhysicalMemory"].Value) / 1024;  //from KB to MB
+            }
+
+            svr.TotalMemory = SizeinMB;
+        }*/
+
+        public static void GetStats(BaseServer svr, PerformanceCounter cpuCounter, PerformanceCounter ramCounter)
         {
             dynamic firstValue = cpuCounter.NextValue();
             System.Threading.Thread.Sleep(500);
             // now matches task manager reading
             svr.ProcessorTotal = Math.Round(cpuCounter.NextValue(), 1);
 
-            ramCounter.CounterName = "% Committed Bytes In Use";
-            svr.MemoryInUse = Math.Round(ramCounter.NextValue());
-
             ramCounter.CounterName = "Available MBytes";
-            svr.MemoryAvailable = Math.Round(ramCounter.NextValue() / 1024, 1);
+            svr.MemoryAvailable = Math.Round(ramCounter.NextValue(), 1);
 
-            drives = DriveInfo.GetDrives();
+            //ramCounter.CounterName = "% Committed Bytes In Use";
+            if (svr.TotalMemory == 0)
+                svr.GetTotalMemory();
+
+            if (svr.TotalMemory > 0)
+                svr.MemoryInUse = ((svr.TotalMemory - svr.MemoryAvailable) / svr.TotalMemory) * 100;
+
+            using (HttpClient cons = new HttpClient())
+            {
+                cons.BaseAddress = new Uri("http://localhost:62104/");
+                cons.DefaultRequestHeaders.Accept.Clear();
+                cons.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                //ConfigHttpClient(cons);
+
+                MyAPIPost(cons, svr, PostStatsURL).Wait();
+            }
+        }
+
+        private static void ConfigHttpClient(HttpClient p_httpclient)
+        {
+            p_httpclient.BaseAddress = new Uri("http://localhost:62104/");
+            p_httpclient.DefaultRequestHeaders.Accept.Clear();
+            p_httpclient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        }
+
+
+        public static void GetDiskStats(BaseServer svr)
+        {
+            DriveInfo[] drives = DriveInfo.GetDrives();
             foreach (DriveInfo drive in drives)
             {
                 //There are more attributes you can use.
@@ -57,13 +99,11 @@ namespace svcSAMCollector
 
             using (HttpClient cons = new HttpClient())
             {
-                cons.BaseAddress = new Uri("http://localhost:62104/");
-                cons.DefaultRequestHeaders.Accept.Clear();
-               // cons.Timeout = new TimeSpan(500);
-                cons.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                ConfigHttpClient(cons);
 
-                MyAPIPost(cons, svr).Wait();
+                MyAPIPost(cons, svr, PostDriveStatsURL).Wait();
             }
+
         }
 
         public static void WriteErrorLog(Exception ex)

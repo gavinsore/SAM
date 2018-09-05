@@ -17,6 +17,12 @@ namespace webappSAMServer.Controllers
             //ServerRepository repository = new ServerRepository();
             new ServerRepository().PostStats(serverstats);    
         }
+
+       [HttpPost]
+        public void PostDiskStats(BaseServer serverstats, bool Paul)
+        {
+            new ServerRepository().PostDiskStats(serverstats);
+        }
     //return "Success";
     }
 }
