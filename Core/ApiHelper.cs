@@ -10,12 +10,13 @@ namespace Core
 {
     public static class ApiHelper
     {
-        public const string PostStatsURL = "api/Server/PostStats";
-        public const string PostDriveStatsURL = "api/Server/PostDriveStats";
+        public const string PostStatsURL = "api/ServerStats/PostStats";
+        public const string PostDriveStatsURL = "api/ServerDisk/PostDriveStats";
+        public const string PostServerURL = "api/Server/PostServer";
 
         private static HttpClient Client = new HttpClient();
 
-        public static async Task MyAPIPost(Object obj, string URI)
+        public static async Task APIPost(Object obj, string URI)
         {
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));

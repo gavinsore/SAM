@@ -23,7 +23,7 @@ namespace webappSAMServer.Repositories
            //connection.
         }
 
-        public void PostDiskStats(BaseServer server)
+        public void PostDiskStats(List<BaseDisks> disks)
         {
             InitiateConnection();
 
@@ -34,12 +34,12 @@ namespace webappSAMServer.Repositories
                 using (qry = new SqlCommand("InsertDiskStats", connection))
                 {
                     qry.CommandType = CommandType.StoredProcedure;
-                    qry.Parameters.AddWithValue("@ServerGUID", server.ServerID);
+                    qry.Parameters.AddWithValue("@ServerGUID", disks.First().ServerID);
                     qry.Parameters.Add("@DriveLetter", SqlDbType.VarChar);
                     qry.Parameters.Add("@Totalsize", SqlDbType.Float);
                     qry.Parameters.Add("@FreeSpace", SqlDbType.Float);
 
-                    foreach (BaseDisks disk in server.Disks)
+                    foreach (BaseDisks disk in disks)
                     {
                         qry.Parameters["@DriveLetter"].Value = disk.DiskLetter;
                         qry.Parameters["@Totalsize"].Value = disk.TotalDiskSize;
@@ -82,5 +82,34 @@ namespace webappSAMServer.Repositories
             }
 
         }   
+
+        public void PostServerHeader(BaseServer server)
+        {
+            InitiateConnection();
+
+            try
+            {
+                connection.Open();
+
+                using (qry = new SqlCommand("ServerHeaderUpdate", connection))
+                {
+                    qry.CommandType = CommandType.StoredProcedure;
+                    qry.Parameters.AddWithValue("@ServerGUID", server.ServerID);
+                    qry.Parameters.AddWithValue("@ServerName", server.ServerName);
+                    qry.Parameters.AddWithValue("@OS", server.OS);
+                    qry.Parameters.AddWithValue("@ServicePack", server.ServicePack);
+                    qry.Parameters.AddWithValue("@LastBoot", server.BootTime);
+                    qry.Parameters.AddWithValue("@TotalMemory", server.TotalMemory);
+
+                    qry.ExecuteNonQuery();
+                }
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+
+        }
     }
 }
