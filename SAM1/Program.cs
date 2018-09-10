@@ -27,7 +27,17 @@ namespace SAM1
                 CategoryName = "Memory"
             };
 
-            Core.BaseServer svr = new BaseServer(Guid.NewGuid());
+            ClientSettings cs = new ClientSettings();
+            Core.BaseServer svr;
+            if (cs.LoadFromXML())
+            {
+                svr = new BaseServer(cs.ServerGuid);
+            }
+            else
+            {
+                svr = new BaseServer(Guid.NewGuid());
+
+            }
             Core.ApiHelper.APIPost(svr, ApiHelper.PostServerURL).Wait();
 
             for (int i = 0; i < 30; i++)

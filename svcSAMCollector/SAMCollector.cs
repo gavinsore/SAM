@@ -39,10 +39,10 @@ namespace svcSAMCollector
             cons.DefaultRequestHeaders.Accept.Clear();
             cons.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));*/
 
-            svr = new BaseServer();
+            
             //svr.ServerID = Guid.NewGuid();
-            svr.ServerName = System.Environment.MachineName;
-            svr.OS = System.Environment.OSVersion.ToString();
+            //svr.ServerName = System.Environment.MachineName;
+            //svr.OS = System.Environment.OSVersion.ToString();
 
             
         }
@@ -56,7 +56,8 @@ namespace svcSAMCollector
             {
                 if (cs.LoadFromXML())
                 {
-                    svr.ServerID = cs.ServerGuid;
+                    svr = new BaseServer(cs.ServerGuid);
+                   // svr.ServerID = cs.ServerGuid;
                     //tbServerGuid.Text = ServerGuid.ToString();
 
                     //tbCompanyName.Text = cs.CompanyName;
