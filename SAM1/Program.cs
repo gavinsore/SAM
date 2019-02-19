@@ -27,6 +27,12 @@ namespace SAM1
                 CategoryName = "Memory"
             };
 
+            PerformanceCounter systemCounter = new PerformanceCounter
+            {
+                CategoryName = "System",
+                CounterName = "Processor Queue Length"
+            };
+
             ClientSettings cs = new ClientSettings();
             Core.BaseServer svr;
             if (cs.LoadFromXML())
@@ -42,9 +48,10 @@ namespace SAM1
 
             for (int i = 0; i < 30; i++)
             {
-                svr.GetStats(cpuCounter, ramCounter);
+                svr.GetStats(cpuCounter, ramCounter, systemCounter);
 
                 Console.WriteLine("CPU Usage: " + svr.ProcessorTotal.ToString() + "%");
+                Console.WriteLine("CPU Queue Length: " + svr.ProcessorQueueLength.ToString());
                 Console.WriteLine("Memory in Use: " + svr.MemoryInUse.ToString() + "%");
                 Console.WriteLine("Memory Available: " + svr.MemoryAvailable.ToString() + "Mb (" + (Math.Round(svr.MemoryAvailable/1024,1)) + "Gb)");
 
@@ -56,6 +63,7 @@ namespace SAM1
                     foreach(BaseDisks disk in svr.Disks)
                     {
                         Console.WriteLine(disk.DiskLetter + " Total Size: " + disk.TotalDiskSize.ToString() + "Mb | Available Space: " + disk.FreeDiskSpace.ToString() + "Mb");
+                        Console.WriteLine(disk.DiskLetter + " Read MBytes/sec: " + (disk.ReadBytesPerSec / 1048576).ToString("F") + " | Write Mbytes/sec: " + (disk.WriteBytesPerSec/1048576).ToString("F"));
                     }
 
                     Core.ApiHelper.APIPost(svr.Disks, ApiHelper.PostDriveStatsURL).Wait();

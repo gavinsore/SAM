@@ -25,6 +25,7 @@ namespace Core
             try
             {
                 HttpResponseMessage msg = await Client.PostAsJsonAsync(new Uri("http://localhost:62104/" + URI), obj);
+                //HttpResponseMessage msg = await Client.PostAsJsonAsync(new Uri("http://webappservmondev.azurewebsites.net/" + URI), obj);
                 //WriteErrorLog("Posted stats: " + msg.StatusCode);
             }
             catch (Exception e)

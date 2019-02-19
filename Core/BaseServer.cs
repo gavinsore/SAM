@@ -16,6 +16,9 @@ namespace Core
         public long FreeDiskSpace { get; set; }
         public Guid ServerID { get; }
 
+        public float ReadBytesPerSec { get; set; }
+        public float WriteBytesPerSec { get; set; }
+
         public BaseDisks(Guid p_ServerID)
         {
             ServerID = p_ServerID;
@@ -24,16 +27,18 @@ namespace Core
 
     public class BaseServer
     {
-        public Guid ServerID { get; }
-        public string ServerName { get; private set; }
+        public Guid ServerID { get; set;  }
+        public string ServerName { get; set; }
         public DateTime PostTime { get; private set; }
-        public double ProcessorTotal { get; private set; }
-        public List<BaseDisks> Disks { get; private set; }
+        public double ProcessorTotal { get; set; }
+
+        public double ProcessorQueueLength { get; set; }
+        public List<BaseDisks> Disks { get; set; }
         public double MemoryInUse { get { return GetMemoryInUse(); } }
-        public double MemoryAvailable { get; private set; }
-        public double TotalMemory { get; private set; }
-        public string OS { get; private set; }
-        public string ServicePack { get; private set; }
+        public double MemoryAvailable { get; set; }
+        public double TotalMemory { get; set; }
+        public string OS { get; set; }
+        public string ServicePack { get; set; }
 
         public TimeSpan UpTime
         {
@@ -79,12 +84,14 @@ namespace Core
 
         }
 
-        public void GetStats(PerformanceCounter cpuCounter, PerformanceCounter ramCounter)
+        public void GetStats(PerformanceCounter cpuCounter, PerformanceCounter ramCounter, PerformanceCounter systemCounter)
         {
-            dynamic firstValue = cpuCounter.NextValue();
+            cpuCounter.NextValue();
+            systemCounter.NextValue();
             System.Threading.Thread.Sleep(500);  // now matches task manager reading
 
             this.ProcessorTotal = Math.Round(cpuCounter.NextValue(), 1);
+            this.ProcessorQueueLength = systemCounter.NextValue();
 
             ramCounter.CounterName = "Available MBytes";
             this.MemoryAvailable = Math.Round(ramCounter.NextValue(), 1);
@@ -93,6 +100,14 @@ namespace Core
         public void GetDriveStats()
         {
             DriveInfo[] drives = DriveInfo.GetDrives();
+            var cat = new System.Diagnostics.PerformanceCounterCategory("PhysicalDisk");
+            var instNames = cat.GetInstanceNames();
+
+            PerformanceCounter diskCounter = new PerformanceCounter
+            {
+                CategoryName = "PhysicalDisk" 
+            };
+
             foreach (DriveInfo drive in drives)
             {
                 //There are more attributes you can use.
@@ -113,10 +128,23 @@ namespace Core
                     disk.DiskLetter = drive.Name;
                     disk.FreeDiskSpace = ((drive.AvailableFreeSpace / 1024) / 1024);
                     disk.TotalDiskSize = ((drive.TotalSize / 1024) / 1024);
+
+                    diskCounter.CounterName = "Disk Read Bytes/sec";
+                    diskCounter.InstanceName = instNames.Where(x => x.Contains(drive.Name[0])).First();
+                    diskCounter.NextValue();
+                    System.Threading.Thread.Sleep(500);
+                    disk.ReadBytesPerSec = diskCounter.NextValue();
+
+                    diskCounter.CounterName = "Disk Write Bytes/sec";
+                    diskCounter.InstanceName = instNames.Where(x => x.Contains(drive.Name[0])).First();
+                    diskCounter.NextValue();
+                    System.Threading.Thread.Sleep(500);
+                    disk.WriteBytesPerSec = diskCounter.NextValue();
                 }
             }
 
 
         }
+
     }
 }
